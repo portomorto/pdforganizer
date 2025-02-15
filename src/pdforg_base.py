@@ -7,10 +7,17 @@ import requests
 import time
 import asyncio
 import dataclasses
+import argparse
 from PyPDF2 import PdfReader
 from typing import Optional, Dict, Any, Tuple
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Organizza file PDF.')
+    parser.add_argument('--input_dir', required=True, help='Directory contenente i PDF da organizzare')
+    parser.add_argument('--output_dir', required=True, help='Directory dove salvare i PDF organizzati')
+    return parser.parse_args()
 
 @dataclass
 class Publication:
@@ -116,11 +123,15 @@ class BasePdfOrganizer:
         self.setup_logging()
 
     def setup_logging(self):
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'log')
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, 'pdf_organizer.log')
+
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('pdf_organizer.log'),
+                logging.FileHandler(log_path),
                 logging.StreamHandler()
             ]
         )
@@ -313,20 +324,28 @@ class BasePdfOrganizer:
         return successful, failed, processed_files
 
 def main():
-    input_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(input_dir, "organized_pdfs")
+    args = parse_arguments()
 
-    print(f"Directory di input: {input_dir}")
-    print(f"Directory di output: {output_dir}")
+    if not os.path.exists(args.input_dir):
+        print(f"Directory di input non trovata: {args.input_dir}")
+        return
 
-    pdf_files = [f for f in os.listdir(input_dir) if f.lower().endswith('.pdf')]
+    print(f"Directory di input: {args.input_dir}")
+    print(f"Directory di output: {args.output_dir}")
+
+    pdf_files = []
+    for root, _, files in os.walk(args.input_dir):
+        for f in files:
+            if f.lower().endswith('.pdf'):
+                pdf_files.append(os.path.join(root, f))
+
     print(f"PDF trovati nella directory: {len(pdf_files)}")
     if pdf_files:
         print("File PDF trovati:")
         for pdf in pdf_files:
             print(f"- {pdf}")
 
-    organizer = BasePdfOrganizer(input_dir, output_dir)
+    organizer = BasePdfOrganizer(args.input_dir, args.output_dir)
     successful, failed, processed = organizer.process_directory()
 
     print(f"\nRiepilogo:")

@@ -14,12 +14,16 @@ class YAMLGenerator:
 
     def setup_logging(self):
         """Configura il logging"""
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'log')
+        os.makedirs(log_dir, exist_ok=True)
         log_filename = f"yaml_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        log_path = os.path.join(log_dir, log_filename)
+
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(log_filename),
+                logging.FileHandler(log_path),
                 logging.StreamHandler()
             ]
         )
@@ -148,7 +152,7 @@ class YAMLGenerator:
 async def main():
     # Cerca la directory organized_pdfs nella directory corrente
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    organized_dir = os.path.join(current_dir, "organized_pdfs")
+    organized_dir = os.path.join(current_dir, "../organized_pdfs")
 
     if not os.path.exists(organized_dir):
         print(f"Directory {organized_dir} non trovata!")

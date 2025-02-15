@@ -12,12 +12,16 @@ class PdfMetadataUpdater:
         self.setup_logging()
 
     def setup_logging(self):
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'log')
+        os.makedirs(log_dir, exist_ok=True)
         log_filename = f"pdf_metadata_updater_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        log_path = os.path.join(log_dir, log_filename)
+
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(log_filename),
+                logging.FileHandler(log_path),
                 logging.StreamHandler()
             ]
         )

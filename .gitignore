@@ -1,6 +1,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/macos,linux,python,jekyll
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,linux,python,jekyll
 
+tree.txt
+mess/*.*
+log/*.*
+/organized_pdfs
+
 ### Jekyll ###
 _site/
 .sass-cache/
